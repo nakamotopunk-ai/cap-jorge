@@ -10,58 +10,61 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 </head>
 <body class="bg-slate-50 min-h-screen flex flex-col items-center p-4 font-sans">
-    <div class="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden mt-4">
-        <video autoplay muted loop playsinline class="w-full h-52 object-cover bg-slate-200">
-            <source src="Capagenda.mp4" type="video/mp4">
-        </video>
+    <div class="max-w-md w-full bg-white rounded-3xl shadow-xl overflow-hidden mt-4 border border-slate-100">
+        
+        <div class="flex justify-center pt-8 pb-4 bg-white">
+            <div class="h-32 w-32 rounded-full overflow-hidden border-4 border-slate-50 shadow-md">
+                <video autoplay muted loop playsinline class="w-full h-full object-cover">
+                    <source src="Capagenda.mp4" type="video/mp4">
+                </video>
+            </div>
+        </div>
         
         <div class="p-6">
-            <div class="flex justify-between items-center mb-4">
-                <div class="text-left">
-                    <h1 class="text-lg font-bold text-slate-800 uppercase leading-tight">Psic. Jorge Alberto</h1>
-                    <p class="text-[10px] text-slate-500 font-medium italic">Centro de Atención Psicológica</p>
-                </div>
-                <img src="Logo.png" alt="Logo CAP" class="h-10 w-auto object-contain">
+            <div class="text-center mb-6">
+                <h1 class="text-xl font-bold text-slate-800 uppercase tracking-tight">Psic. Jorge Alberto Chávez</h1>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-1">Centro de Atención Psicológica</p>
             </div>
 
-            <div class="mb-6 bg-slate-50 border-l-4 border-slate-900 p-4 rounded-r-xl text-[11px] text-slate-700 leading-tight">
-                <p class="font-bold mb-1 uppercase italic underline">Políticas de Reserva</p>
-                <ul class="list-disc ml-4 space-y-1">
-                    <li>La sesión tiene una duración de 50 minutos.</li>
-                    <li>Confirmar el pago al menos 24 horas antes de la cita.</li>
-                    <li>Cancelaciones con menos de 24h no son reembolsables.</li>
+            <div class="mb-6 bg-slate-50 border-y border-slate-100 p-4 rounded-xl text-[11px] text-slate-600 leading-relaxed shadow-sm">
+                <p class="font-black mb-2 uppercase italic text-slate-800 text-center tracking-tighter">Políticas de Reserva</p>
+                <ul class="space-y-2">
+                    <li class="flex gap-2"><span>•</span> Para confirmar tu espacio, se requiere un anticipo del 50% de la sesión.</li>
+                    <li class="flex gap-2"><span>•</span> En caso de cancelación, agradeceremos avisar con 24 horas de anticipación para conservar tu anticipo.</li>
+                    <li class="flex gap-2"><span>•</span> Contamos con una tolerancia de 15 minutos por respeto al horario de todos.</li>
                 </ul>
             </div>
 
             <div id="appointment-form" class="space-y-4">
-                <input type="text" id="name" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none text-sm" placeholder="Nombre completo del paciente">
-                <input type="tel" id="phone" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none text-sm" placeholder="WhatsApp (10 dígitos)">
-                <input type="date" id="date" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                <input type="text" id="name" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-slate-900 outline-none text-sm bg-slate-50" placeholder="Nombre completo del paciente">
+                <input type="tel" id="phone" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-slate-900 outline-none text-sm bg-slate-50" placeholder="WhatsApp (10 dígitos)">
+                <input type="date" id="date" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-slate-900 outline-none text-sm bg-slate-50">
                 
                 <div class="space-y-2">
-                    <label class="text-xs font-bold text-slate-700 italic uppercase tracking-wider">Horarios disponibles:</label>
-                    <div id="hours-grid" class="grid grid-cols-3 gap-2"></div>
+                    <label class="text-[10px] font-black text-slate-400 italic uppercase tracking-widest">Selecciona tu horario:</label>
+                    <div id="hours-grid" class="grid grid-cols-3 gap-2">
+                        <p class="col-span-3 text-center text-slate-300 text-[10px] py-2">Elija una fecha...</p>
+                    </div>
                 </div>
 
-                <button id="submit-btn" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold text-md hover:bg-slate-800 transition-all shadow-lg mt-2 uppercase">
-                    Agendar Cita
+                <button id="submit-btn" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold text-sm hover:bg-slate-800 transition-all shadow-lg mt-2 uppercase tracking-widest active:scale-95">
+                    Confirmar Cita
                 </button>
 
                 <div id="payment-area" class="hidden space-y-3 mt-4 animate-fadeIn">
                     <div class="bg-blue-50 border border-blue-100 p-4 rounded-2xl">
-                        <p class="text-[10px] text-blue-600 font-bold uppercase mb-2 text-center">Datos para transferencia (Mercado Pago)</p>
+                        <p class="text-[9px] text-blue-600 font-bold uppercase mb-2 text-center tracking-tighter">Anticipo del 50% (Mercado Pago)</p>
                         <div class="flex items-center justify-between bg-white p-3 rounded-lg border border-blue-200">
-                            <span id="clabe-text" class="font-mono text-sm font-bold text-slate-700">722969010024864152</span>
-                            <button onclick="copyClabe()" class="bg-blue-600 text-white px-3 py-1 rounded-md text-[10px] font-bold active:scale-90 transition-all">COPIAR</button>
+                            <span id="clabe-text" class="font-mono text-xs font-bold text-slate-700">722969010024864152</span>
+                            <button onclick="copyClabe()" class="bg-blue-600 text-white px-3 py-2 rounded-md text-[9px] font-black active:scale-90 transition-all uppercase">COPIAR</button>
                         </div>
-                        <p id="copy-status" class="text-[9px] text-blue-500 text-center mt-1 font-bold hidden uppercase">¡Copiado con éxito!</p>
+                        <p id="copy-status" class="text-[9px] text-blue-500 text-center mt-1 font-bold hidden uppercase tracking-widest">¡Copiado!</p>
                     </div>
-                    <p class="text-[10px] text-slate-400 text-center italic">Envía el comprobante por WhatsApp al finalizar.</p>
                 </div>
             </div>
             
-            <footer class="mt-8 text-center border-t pt-4">
-                <a href="politicas.html" class="text-[9px] text-slate-400 underline uppercase tracking-widest hover:text-slate-600">Aviso de Privacidad / Cookies</a>
+            <footer class="mt-8 text-center pt-4 border-t border-slate-50">
+                <a href="politicas.html" class="text-[9px] text-slate-300 underline uppercase tracking-tighter hover:text-slate-500">Privacidad y Cookies</a>
             </footer>
         </div>
     </div>
@@ -83,39 +86,35 @@
         const hoursGrid = document.getElementById('hours-grid');
         let selectedHour = null;
 
-        // Función para copiar CLABE
         window.copyClabe = () => {
             const clabe = document.getElementById('clabe-text').innerText;
-            navigator.clipboard.writeText(clabe);
-            const status = document.getElementById('copy-status');
-            status.classList.remove('hidden');
-            setTimeout(() => status.classList.add('hidden'), 2000);
+            navigator.clipboard.writeText(clabe).then(() => {
+                const status = document.getElementById('copy-status');
+                status.classList.remove('hidden');
+                setTimeout(() => status.classList.add('hidden'), 2000);
+            });
         };
 
         dateInput.onchange = async (e) => {
             const date = e.target.value;
-            hoursGrid.innerHTML = '<p class="text-center col-span-3 text-slate-400 text-[10px] animate-pulse">Verificando disponibilidad...</p>';
-            
+            hoursGrid.innerHTML = '<p class="text-center col-span-3 text-slate-300 text-[9px] animate-pulse py-2 uppercase">Cargando...</p>';
             const doc = await db.collection('configuracion').doc(date).get();
             const activos = doc.exists ? doc.data().activos : [];
             const snapshot = await db.collection('citas').where('fecha', '==', date).get();
             const ocupadas = snapshot.docs.map(d => d.data().hora);
-            
             const disponibles = activos.filter(h => !ocupadas.includes(h)).sort();
             hoursGrid.innerHTML = '';
-            
             if(disponibles.length === 0) {
-                hoursGrid.innerHTML = '<p class="text-center col-span-3 text-red-400 text-[10px]">No hay horarios disponibles para este día.</p>';
+                hoursGrid.innerHTML = '<p class="text-center col-span-3 text-red-300 text-[9px] py-2 uppercase font-bold">No hay horarios</p>';
                 return;
             }
-
             disponibles.forEach(hora => {
                 const btn = document.createElement('button');
-                btn.className = 'py-2 border rounded-xl text-xs font-bold transition-all border-slate-200 text-slate-600';
+                btn.className = 'py-2 border rounded-xl text-[10px] font-bold transition-all border-slate-100 text-slate-500 bg-slate-50';
                 btn.textContent = hora;
                 btn.onclick = () => {
-                    document.querySelectorAll('#hours-grid button').forEach(b => b.className = 'py-2 border rounded-xl text-xs font-bold transition-all border-slate-200 text-slate-600');
-                    btn.className = 'py-2 border rounded-xl text-xs font-bold transition-all bg-slate-900 text-white border-slate-900 shadow-md';
+                    document.querySelectorAll('#hours-grid button').forEach(b => b.className = 'py-2 border rounded-xl text-[10px] font-bold transition-all border-slate-100 text-slate-500 bg-slate-50');
+                    btn.className = 'py-2 border rounded-xl text-[10px] font-bold transition-all bg-slate-900 text-white border-slate-900 shadow-md scale-105';
                     selectedHour = hora;
                 };
                 hoursGrid.appendChild(btn);
@@ -123,14 +122,14 @@
         };
 
         document.getElementById('submit-btn').onclick = async () => {
-            const name = document.getElementById('name').value;
-            const phone = document.getElementById('phone').value;
+            const name = document.getElementById('name').value.trim();
+            const phone = document.getElementById('phone').value.trim();
             const date = dateInput.value;
-
-            if(!name || phone.length < 10 || !date || !selectedHour) return alert('Por favor, completa todos los campos correctamente.');
-
+            if(!name || phone.length < 10 || !date || !selectedHour) return alert('Datos incompletos');
             const finalPhone = "52" + phone.replace(/\D/g, '').slice(-10);
-
+            const btn = document.getElementById('submit-btn');
+            btn.disabled = true;
+            btn.innerText = "REGISTRANDO...";
             await db.collection('citas').add({
                 nombre: name,
                 telefono: finalPhone,
@@ -138,19 +137,16 @@
                 hora: selectedHour,
                 creado: firebase.firestore.FieldValue.serverTimestamp()
             });
-
             document.getElementById('payment-area').classList.remove('hidden');
-            document.getElementById('submit-btn').disabled = true;
-            document.getElementById('submit-btn').innerText = "CITA RESERVADA";
-            document.getElementById('submit-btn').className = "w-full bg-green-500 text-white py-4 rounded-xl font-bold text-md cursor-not-allowed uppercase";
-
-            const msj = `Hola Psic. Jorge Chávez, agendé una cita:\n👤 Paciente: ${name}\n📅 Fecha: ${date}\n⏰ Hora: ${selectedHour}\n\n*Procedo a realizar el pago.*`;
-            window.location.href = `https://wa.me/${JORGE_PHONE}?text=${encodeURIComponent(msj)}`;
+            btn.innerText = "REGISTRADO";
+            btn.className = "w-full bg-green-500 text-white py-4 rounded-xl font-bold text-sm cursor-not-allowed uppercase tracking-widest";
+            const msj = `Hola Jorge, soy ${name}. Aparté cita para el ${date} a las ${selectedHour}. Procedo a enviar el comprobante del anticipo.`;
+            window.open(`https://wa.me/${JORGE_PHONE}?text=${encodeURIComponent(msj)}`, '_blank');
         };
     </script>
     <style>
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fadeIn { animation: fadeIn 0.5s ease forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fadeIn { animation: fadeIn 0.4s ease forwards; }
     </style>
 </body>
 </html>
