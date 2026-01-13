@@ -9,22 +9,33 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 </head>
 <body class="bg-slate-50 min-h-screen flex flex-col items-center p-4">
-    <div class="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden mt-8">
-        <video autoplay muted loop playsinline class="w-full h-48 object-cover">
+    <div class="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden mt-4">
+        <video autoplay muted loop playsinline class="w-full h-48 object-cover bg-slate-200">
             <source src="Capagenda.mp4" type="video/mp4">
         </video>
+        
         <div class="p-6">
-            <h1 class="text-xl font-bold text-slate-800 text-center">PSIC. JORGE ALBERTO CHÁVEZ ZAMORA</h1>
-            <p class="text-center text-slate-500 mb-6">Centro de Atención Psicológica</p>
+            <h1 class="text-xl font-bold text-slate-800 text-center uppercase leading-tight">Psic. Jorge Alberto Chávez Zamora</h1>
+            <p class="text-center text-slate-500 mb-6 font-medium">Centro de Atención Psicológica</p>
+            
             <div id="appointment-form" class="space-y-4">
-                <input type="text" id="name" class="w-full px-4 py-3 rounded-xl border" placeholder="Nombre Completo">
-                <input type="tel" id="phone" class="w-full px-4 py-3 rounded-xl border" placeholder="WhatsApp (10 dígitos)">
-                <input type="date" id="date" class="w-full px-4 py-3 rounded-xl border">
-                <div id="hours-grid" class="grid grid-cols-3 gap-2"></div>
-                <button id="submit-btn" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold">Agendar Cita</button>
+                <input type="text" id="name" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Nombre del paciente">
+                <input type="tel" id="phone" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="WhatsApp (10 dígitos)">
+                <input type="date" id="date" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none">
+                
+                <div class="space-y-2">
+                    <label class="text-sm font-bold text-slate-700">Selecciona tu horario:</label>
+                    <div id="hours-grid" class="grid grid-cols-3 gap-2">
+                        </div>
+                </div>
+
+                <button id="submit-btn" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold text-lg hover:bg-slate-800 transition-all shadow-lg active:scale-95 mt-4">
+                    Agendar Cita
+                </button>
             </div>
         </div>
     </div>
+
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyCZ3QgdPgj9YyoyZCwHZwDB0DF-4gK6hMI",
@@ -38,7 +49,64 @@
         const db = firebase.firestore();
         const JORGE_PHONE = "523330437478";
 
-        // Aquí va la lógica de guardado (es igual a la de Belén)
+        // Lógica de funcionamiento (Agenda)
+        const dateInput = document.getElementById('date');
+        const hoursGrid = document.getElementById('hours-grid');
+        const submitBtn = document.getElementById('submit-btn');
+        let selectedHour = null;
+
+        dateInput.addEventListener('change', async (e) => {
+            const date = e.target.value;
+            hoursGrid.innerHTML = '<p class="text-center col-span-3 text-slate-400">Cargando...</p>';
+            
+            const doc = await db.collection('configuracion').doc(date).get();
+            const activos = doc.exists ? doc.data().activos : [];
+            
+            const snapshot = await db.collection('citas').where('fecha', '==', date).get();
+            const ocupadas = snapshot.docs.map(d => d.data().hora);
+            
+            const disponibles = activos.filter(h => !ocupadas.includes(h));
+            
+            hoursGrid.innerHTML = '';
+            if(disponibles.length === 0) {
+                hoursGrid.innerHTML = '<p class="text-center col-span-3 text-red-500 text-sm">No hay horarios disponibles</p>';
+                return;
+            }
+
+            disponibles.forEach(hora => {
+                const btn = document.createElement('button');
+                btn.className = 'py-2 px-1 border rounded-lg text-sm font-medium hover:bg-blue-50 transition-all';
+                btn.textContent = hora;
+                btn.onclick = () => {
+                    document.querySelectorAll('#hours-grid button').forEach(b => b.classList.remove('bg-blue-600', 'text-white'));
+                    btn.classList.add('bg-blue-600', 'text-white');
+                    selectedHour = hora;
+                };
+                hoursGrid.appendChild(btn);
+            });
+        });
+
+        submitBtn.onclick = async () => {
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const date = dateInput.value;
+
+            if(!name || !phone || !date || !selectedHour) return alert('Por favor llena todos los campos');
+
+            const cleanPhone = phone.replace(/\D/g, '');
+            const finalPhone = cleanPhone.startsWith('52') ? cleanPhone : '52' + cleanPhone;
+
+            await db.collection('citas').add({
+                nombre: name,
+                telefono: finalPhone,
+                fecha: date,
+                hora: selectedHour,
+                creado: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            const msj = `Hola, agendé una cita: \n👤 ${name}\n📅 ${date}\n⏰ ${selectedHour}`;
+            window.location.href = `https://wa.me/${JORGE_PHONE}?text=${encodeURIComponent(msj)}`;
+        };
     </script>
 </body>
 </html>
