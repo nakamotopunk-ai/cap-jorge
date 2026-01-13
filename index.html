@@ -11,30 +11,57 @@
 </head>
 <body class="bg-slate-50 min-h-screen flex flex-col items-center p-4 font-sans">
     <div class="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden mt-4">
-        <video autoplay muted loop playsinline class="w-full h-48 object-cover bg-slate-200">
+        <video autoplay muted loop playsinline class="w-full h-52 object-cover bg-slate-200">
             <source src="Capagenda.mp4" type="video/mp4">
         </video>
         
         <div class="p-6">
-            <h1 class="text-xl font-bold text-slate-800 text-center uppercase leading-tight">Psic. Jorge Alberto Chávez Zamora</h1>
-            <p class="text-center text-slate-500 mb-6 font-medium italic">Centro de Atención Psicológica</p>
-            
+            <div class="flex justify-between items-center mb-4">
+                <div class="text-left">
+                    <h1 class="text-lg font-bold text-slate-800 uppercase leading-tight">Psic. Jorge Alberto</h1>
+                    <p class="text-[10px] text-slate-500 font-medium italic">Centro de Atención Psicológica</p>
+                </div>
+                <img src="Logo.png" alt="Logo CAP" class="h-10 w-auto object-contain">
+            </div>
+
+            <div class="mb-6 bg-slate-50 border-l-4 border-slate-900 p-4 rounded-r-xl text-[11px] text-slate-700 leading-tight">
+                <p class="font-bold mb-1 uppercase italic underline">Políticas de Reserva</p>
+                <ul class="list-disc ml-4 space-y-1">
+                    <li>La sesión tiene una duración de 50 minutos.</li>
+                    <li>Confirmar el pago al menos 24 horas antes de la cita.</li>
+                    <li>Cancelaciones con menos de 24h no son reembolsables.</li>
+                </ul>
+            </div>
+
             <div id="appointment-form" class="space-y-4">
-                <input type="text" id="name" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Nombre completo">
-                <input type="tel" id="phone" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="WhatsApp (10 dígitos)">
-                <input type="date" id="date" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none">
+                <input type="text" id="name" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none text-sm" placeholder="Nombre completo del paciente">
+                <input type="tel" id="phone" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none text-sm" placeholder="WhatsApp (10 dígitos)">
+                <input type="date" id="date" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
                 
                 <div class="space-y-2">
-                    <label class="text-sm font-bold text-slate-700 italic">Selecciona tu horario:</label>
+                    <label class="text-xs font-bold text-slate-700 italic uppercase tracking-wider">Horarios disponibles:</label>
                     <div id="hours-grid" class="grid grid-cols-3 gap-2"></div>
                 </div>
 
-                <button id="submit-btn" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold text-lg hover:bg-slate-800 transition-all shadow-lg mt-4">
-                    Confirmar Cita
+                <button id="submit-btn" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold text-md hover:bg-slate-800 transition-all shadow-lg mt-2 uppercase">
+                    Agendar Cita
                 </button>
+
+                <div id="payment-area" class="hidden space-y-3 mt-4 animate-fadeIn">
+                    <div class="bg-blue-50 border border-blue-100 p-4 rounded-2xl">
+                        <p class="text-[10px] text-blue-600 font-bold uppercase mb-2 text-center">Datos para transferencia (Mercado Pago)</p>
+                        <div class="flex items-center justify-between bg-white p-3 rounded-lg border border-blue-200">
+                            <span id="clabe-text" class="font-mono text-sm font-bold text-slate-700">722969010024864152</span>
+                            <button onclick="copyClabe()" class="bg-blue-600 text-white px-3 py-1 rounded-md text-[10px] font-bold active:scale-90 transition-all">COPIAR</button>
+                        </div>
+                        <p id="copy-status" class="text-[9px] text-blue-500 text-center mt-1 font-bold hidden uppercase">¡Copiado con éxito!</p>
+                    </div>
+                    <p class="text-[10px] text-slate-400 text-center italic">Envía el comprobante por WhatsApp al finalizar.</p>
+                </div>
             </div>
-            <footer class="mt-8 text-center">
-                <a href="politicas.html" class="text-[10px] text-slate-400 underline uppercase tracking-widest">Políticas de Privacidad</a>
+            
+            <footer class="mt-8 text-center border-t pt-4">
+                <a href="politicas.html" class="text-[9px] text-slate-400 underline uppercase tracking-widest hover:text-slate-600">Aviso de Privacidad / Cookies</a>
             </footer>
         </div>
     </div>
@@ -56,9 +83,18 @@
         const hoursGrid = document.getElementById('hours-grid');
         let selectedHour = null;
 
+        // Función para copiar CLABE
+        window.copyClabe = () => {
+            const clabe = document.getElementById('clabe-text').innerText;
+            navigator.clipboard.writeText(clabe);
+            const status = document.getElementById('copy-status');
+            status.classList.remove('hidden');
+            setTimeout(() => status.classList.add('hidden'), 2000);
+        };
+
         dateInput.onchange = async (e) => {
             const date = e.target.value;
-            hoursGrid.innerHTML = '<p class="text-center col-span-3 text-slate-400 animate-pulse text-xs">Buscando horarios...</p>';
+            hoursGrid.innerHTML = '<p class="text-center col-span-3 text-slate-400 text-[10px] animate-pulse">Verificando disponibilidad...</p>';
             
             const doc = await db.collection('configuracion').doc(date).get();
             const activos = doc.exists ? doc.data().activos : [];
@@ -68,13 +104,18 @@
             const disponibles = activos.filter(h => !ocupadas.includes(h)).sort();
             hoursGrid.innerHTML = '';
             
+            if(disponibles.length === 0) {
+                hoursGrid.innerHTML = '<p class="text-center col-span-3 text-red-400 text-[10px]">No hay horarios disponibles para este día.</p>';
+                return;
+            }
+
             disponibles.forEach(hora => {
                 const btn = document.createElement('button');
-                btn.className = 'py-2 border rounded-lg text-sm font-bold transition-all border-slate-200';
+                btn.className = 'py-2 border rounded-xl text-xs font-bold transition-all border-slate-200 text-slate-600';
                 btn.textContent = hora;
                 btn.onclick = () => {
-                    document.querySelectorAll('#hours-grid button').forEach(b => b.classList.remove('bg-blue-600', 'text-white', 'border-blue-600'));
-                    btn.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
+                    document.querySelectorAll('#hours-grid button').forEach(b => b.className = 'py-2 border rounded-xl text-xs font-bold transition-all border-slate-200 text-slate-600');
+                    btn.className = 'py-2 border rounded-xl text-xs font-bold transition-all bg-slate-900 text-white border-slate-900 shadow-md';
                     selectedHour = hora;
                 };
                 hoursGrid.appendChild(btn);
@@ -86,10 +127,9 @@
             const phone = document.getElementById('phone').value;
             const date = dateInput.value;
 
-            if(!name || phone.length < 10 || !date || !selectedHour) return alert('Por favor completa todos los datos correctamente');
+            if(!name || phone.length < 10 || !date || !selectedHour) return alert('Por favor, completa todos los campos correctamente.');
 
-            const cleanPhone = phone.replace(/\D/g, '').slice(-10);
-            const finalPhone = "52" + cleanPhone;
+            const finalPhone = "52" + phone.replace(/\D/g, '').slice(-10);
 
             await db.collection('citas').add({
                 nombre: name,
@@ -99,9 +139,18 @@
                 creado: firebase.firestore.FieldValue.serverTimestamp()
             });
 
-            const msj = `Hola Psic. Jorge, agendé una cita:\n👤 Paciente: ${name}\n📅 Fecha: ${date}\n⏰ Hora: ${selectedHour}\n\nConfirmado vía CAP App.`;
+            document.getElementById('payment-area').classList.remove('hidden');
+            document.getElementById('submit-btn').disabled = true;
+            document.getElementById('submit-btn').innerText = "CITA RESERVADA";
+            document.getElementById('submit-btn').className = "w-full bg-green-500 text-white py-4 rounded-xl font-bold text-md cursor-not-allowed uppercase";
+
+            const msj = `Hola Psic. Jorge Chávez, agendé una cita:\n👤 Paciente: ${name}\n📅 Fecha: ${date}\n⏰ Hora: ${selectedHour}\n\n*Procedo a realizar el pago.*`;
             window.location.href = `https://wa.me/${JORGE_PHONE}?text=${encodeURIComponent(msj)}`;
         };
     </script>
+    <style>
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fadeIn { animation: fadeIn 0.5s ease forwards; }
+    </style>
 </body>
 </html>
